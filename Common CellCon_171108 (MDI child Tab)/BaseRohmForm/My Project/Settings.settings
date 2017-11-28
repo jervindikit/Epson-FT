@@ -92,7 +92,7 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="EventReportEnable" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="WorkingSlipQRLenght" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">332</Value>

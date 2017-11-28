@@ -11,13 +11,11 @@ End Enum
 Public Enum EquipmentState As Byte
     INIT = 1
     IDLE = 2
-    SETUP = 3
-    READY = 4
-    EXECUTING = 5
-    CYCLE_END = 6
-    PAUSE_END = 7
-    MANUAL = 8
-    ABORT = 9
+    READY = 3
+    EXECUTING = 4
+    PAUSING = 5
+    PAUSE = 6
+    SYSTEM_ERROR = 7
 End Enum
 
 #End Region

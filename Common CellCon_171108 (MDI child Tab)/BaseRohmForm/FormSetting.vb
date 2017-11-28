@@ -860,17 +860,17 @@ aaa:
     Private Sub ToolStripMenuItem1_Click(sender As System.Object, e As System.EventArgs) Handles ToolStripMenuItem1.Click
         Try
 
-            SecsID.LotStartCEID = CUInt(dgvCEID.Rows(0).Cells(1).Value)
-            SecsID.LotEndCEID = CUInt(dgvCEID.Rows(1).Cells(1).Value)
-            SecsID.LotIDSVID = CUInt(dgvSVID.Rows(0).Cells(1).Value)
-            SecsID.GoodCat1SVID = CUInt(dgvSVID.Rows(1).Cells(1).Value)
-            SecsID.GoodCat2SVID = CUInt(dgvSVID.Rows(2).Cells(1).Value)
-            SecsID.NgBin1SVID = CUInt(dgvSVID.Rows(3).Cells(1).Value)
-            SecsID.NgBin2SVID = CUInt(dgvSVID.Rows(4).Cells(1).Value)
-            SecsID.NgBin3SVID = CUInt(dgvSVID.Rows(5).Cells(1).Value)
-            SecsID.NgBin4SVID = CUInt(dgvSVID.Rows(6).Cells(1).Value)
-            SecsID.NgBin5SVID = CUInt(dgvSVID.Rows(7).Cells(1).Value)
-            SecsID.NgBin6SVID = CUInt(dgvSVID.Rows(8).Cells(1).Value)
+            SecsID.LotStartCEID = dgvCEID.Rows(0).Cells(1).Value.ToString()
+            SecsID.LotEndCEID = dgvCEID.Rows(1).Cells(1).Value.ToString()
+            SecsID.LotIDSVID = dgvSVID.Rows(0).Cells(1).Value.ToString()
+            SecsID.GoodCat1SVID = dgvSVID.Rows(1).Cells(1).Value.ToString()
+            SecsID.GoodCat2SVID = dgvSVID.Rows(2).Cells(1).Value.ToString()
+            SecsID.NgBin1SVID = dgvSVID.Rows(3).Cells(1).Value.ToString()
+            SecsID.NgBin2SVID = dgvSVID.Rows(4).Cells(1).Value.ToString()
+            SecsID.NgBin3SVID = dgvSVID.Rows(5).Cells(1).Value.ToString()
+            SecsID.NgBin4SVID = dgvSVID.Rows(6).Cells(1).Value.ToString()
+            SecsID.NgBin5SVID = dgvSVID.Rows(7).Cells(1).Value.ToString()
+            SecsID.NgBin6SVID = dgvSVID.Rows(8).Cells(1).Value.ToString()
 
             WrXml(PathXmlObj & "\SECSID.xml", SecsID)
             RaiseEvent E_SlInfo("SECS ID Save Success")

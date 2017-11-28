@@ -78,7 +78,8 @@ Public Class FormProduction
                 Case 6
                     Select Case msg.Function
                         Case 11
-                            Perform_S6F11(CType(msg, S6F11))
+                            OnS6F11(CType(msg, S6F11))
+                            'Perform_S6F11(CType(msg, S6F11))
                             Exit Sub           '160906 \783 Call productionn form
                     End Select
                 Case 9
@@ -793,7 +794,6 @@ Public Class FormProduction
 
 
     Private Sub Lotstart(Optional ByVal LsMode As RunModeType = RunModeType.Normal)
-
         Dim datex As Date = Now
         lbStartTime.Text = Format(datex, "yyyy/MM/dd HH:mm:ss")
         CellConTag.LotStartTime = lbStartTime.Text
@@ -805,7 +805,8 @@ Public Class FormProduction
             End If
 
         End If
-        FormMain.GetInstance.c_ServiceProxy.DiebondLotStart(lbMcNo.Text, datex)
+
+        'FormMain.GetInstance.c_ServiceProxy.DiebondLotStart(lbMcNo.Text, datex)
     End Sub
 
 
@@ -1032,7 +1033,9 @@ Public Class FormProduction
         lbEndTime.Text = CellConTag.LotEndTime
         'lbWaferLotNo.Text = CellConTag.WaferLotID
         'lbWaferNo.Text = CellConTag.CurrentWaferID
-
+        LabelClock.Text = m_Equipment.Clock
+        LabelProcessState.Text = m_Equipment.EQStatus.ToString()
+        LabelPrevProcessState.Text = m_Equipment.PreEQStatus.ToString()
     End Sub
 
 
@@ -1065,6 +1068,9 @@ Public Class FormProduction
             Exit Sub
         End If
 
+        'reply(acknowledge)
+        Dim s6f12 As S6F12 = New S6F12()
+        c_Host.Reply(request, s6f12)
         request.ApplyStatusVariableValue(m_Equipment, m_DefinedReportDic)  'Macthing  S6F11 with  Define report for decode SVID
 
         'm_Equipment are object of SVIDs if usage by S6F11  , Please define property of equiptment object refer to SVID Name in equipment specification. 
@@ -1089,8 +1095,18 @@ Public Class FormProduction
             End Select
         End If
 
-        Select Case request.CEID ''Control Status
-            'm_equipment are SVID of CEID that define in report.
+        Select Case request.CEID.ToString() ''Control Status
+            'MANAGE CEID's - JERVIN 2017.11.27
+            Case "800" 'Lot Start Event
+                Lotstart(CType(CellConTag.LSMode, RunModeType))
+                UpdateLabelsText()
+
+            Case "822" 'Lot Close Event
+            Case "901" 'Test End Event
+            Case "100" 'Process State Change Event
+                UpdateLabelsText()
+
+                'm_equipment are SVID of CEID that define in report.
         End Select
 
     End Sub
@@ -1339,33 +1355,41 @@ Public Class FormProduction
         'reply(acknowledge)
         Dim s6f12 As S6F12 = New S6F12()
         c_Host.Reply(request, s6f12)
-        'request.ApplyStatusVariableValue(m_Equipment, m_DefinedReportDic)
+        request.ApplyStatusVariableValue(m_Equipment, m_DefinedReportDic)
 
-        'Try
+        Try
 
-        '    Select Case request.CEID
+            Select Case request.CEID
+                'MANAGE CEID's - JERVIN 2017.11.27
+                Case "800" 'Lot Start Event
+                    Lotstart(CType(CellConTag.LSMode, RunModeType))
+                    UpdateLabelsText()
 
-        '        ''Case 1001 'Control Status
-        '        ''    UpdateStateThreadSafe(m_Equipment.ControlState.ToString, StatusLabel.FrmSecs_slbControlState)
-        '        '    ''Case 1002 'EQ Status           
-        '        '    ''    OnEQStatusChanged()
-        '        '    ''Case 1003 'Lot Start(End)
-        '        '    ''    OnLotStartEnd()
-        '        '    ''Case 1102 'Loader End             
-        '        '    ''    OnLoaderEnd()
-        '        '    ''    'USELESS EVENTS
-        '        '    ''    'Case 1004 'ppid change
-        '        '    ''    'Case 1100 'Door Locked
-        '        '    ''    'Case 1101 'Tube Status
-        '        Case Else
+                Case "822" 'Lot Close Event
+                Case "901" 'Test End Event
+                Case "100" 'Process State Change Event
+
+                    '        ''    UpdateStateThreadSafe(m_Equipment.ControlState.ToString, StatusLabel.FrmSecs_slbControlState)
+                    '        '    ''Case 1002 'EQ Status           
+                    '        '    ''    OnEQStatusChanged()
+                    '        '    ''Case 1003 'Lot Start(End)
+                    '        '    ''    OnLotStartEnd()
+                    '        '    ''Case 1102 'Loader End             
+                    '        '    ''    OnLoaderEnd()
+                    '        '    ''    'USELESS EVENTS
+                    '        '    ''    'Case 1004 'ppid change
+                    '        '    ''    'Case 1100 'Door Locked
+                    '        '    ''    'Case 1101 'Tube Status
+                    '        Case Else
 
 
-        '    End Select
 
-        'Catch ex As Exception
-        '    SaveCatchLog(ex.ToString, "Perform_S6F11()")
+            End Select
 
-        'End Try
+        Catch ex As Exception
+            SaveCatchLog(ex.ToString, "Perform_S6F11()")
+
+        End Try
 
         'If OprData.FRMProductAlive Then
         '    FrmProduct.OnS6F11(request) '160801 \783 Add parameter m_Equipment
@@ -1490,7 +1514,6 @@ Public Class FormProduction
     Private Sub Button6_Click(sender As System.Object, e As System.EventArgs) Handles Button6.Click
         FormMain.GetInstance.c_ServiceProxy.AlarmReport(lbMcNo.Text, False, "001", "TestAlarmSet")
     End Sub
-
     Private Sub Button7_Click(sender As System.Object, e As System.EventArgs) Handles Button7.Click
         Dim sta As New m_ProcessingStates
         sta = DirectCast(ComboBox1.SelectedIndex, m_ProcessingStates)

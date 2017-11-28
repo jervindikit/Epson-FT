@@ -147,6 +147,16 @@ Public Class Equipment         '160906 \783 Revise
             _NGPcs = value
         End Set
     End Property
+
+    Private _Clock As String
+    Public Property Clock() As String
+        Get
+            Return _Clock
+        End Get
+        Set(ByVal value As String)
+            _Clock = value
+        End Set
+    End Property
 #End Region
 
 #Region "===   ECID   ==="

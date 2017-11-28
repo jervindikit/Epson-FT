@@ -74,6 +74,12 @@ Partial Class FormProduction
         Me.Button6 = New System.Windows.Forms.Button()
         Me.Button7 = New System.Windows.Forms.Button()
         Me.ComboBox1 = New System.Windows.Forms.ComboBox()
+        Me.Label8 = New System.Windows.Forms.Label()
+        Me.Label13 = New System.Windows.Forms.Label()
+        Me.Label15 = New System.Windows.Forms.Label()
+        Me.LabelPrevProcessState = New System.Windows.Forms.Label()
+        Me.LabelProcessState = New System.Windows.Forms.Label()
+        Me.LabelClock = New System.Windows.Forms.Label()
         Me.MenuStrip1.SuspendLayout()
         CType(Me.pbxAutoM, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.pbxLogo, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -145,19 +151,19 @@ Partial Class FormProduction
         'MaximizeToolStripMenuItem
         '
         Me.MaximizeToolStripMenuItem.Name = "MaximizeToolStripMenuItem"
-        Me.MaximizeToolStripMenuItem.Size = New System.Drawing.Size(145, 22)
+        Me.MaximizeToolStripMenuItem.Size = New System.Drawing.Size(144, 22)
         Me.MaximizeToolStripMenuItem.Text = "Maximize"
         '
         'ProductTableToolStripMenuItem
         '
         Me.ProductTableToolStripMenuItem.Name = "ProductTableToolStripMenuItem"
-        Me.ProductTableToolStripMenuItem.Size = New System.Drawing.Size(145, 22)
+        Me.ProductTableToolStripMenuItem.Size = New System.Drawing.Size(144, 22)
         Me.ProductTableToolStripMenuItem.Text = "ProductTable"
         '
         'SecsConsoleToolStripMenuItem
         '
         Me.SecsConsoleToolStripMenuItem.Name = "SecsConsoleToolStripMenuItem"
-        Me.SecsConsoleToolStripMenuItem.Size = New System.Drawing.Size(145, 22)
+        Me.SecsConsoleToolStripMenuItem.Size = New System.Drawing.Size(144, 22)
         Me.SecsConsoleToolStripMenuItem.Text = "SecsConsole"
         '
         'EqConnectToolStripMenuItem
@@ -467,7 +473,7 @@ Partial Class FormProduction
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 68.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 132.0!))
         Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 78.0!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 365.0!))
+        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 371.0!))
         Me.TableLayoutPanel1.Controls.Add(Me.Label1, 0, 0)
         Me.TableLayoutPanel1.Controls.Add(Me.Label2, 0, 1)
         Me.TableLayoutPanel1.Controls.Add(Me.lbMcNo, 1, 0)
@@ -497,7 +503,7 @@ Partial Class FormProduction
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
         Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(1051, 87)
+        Me.TableLayoutPanel1.Size = New System.Drawing.Size(1057, 87)
         Me.TableLayoutPanel1.TabIndex = 123
         '
         'Button3
@@ -553,6 +559,66 @@ Partial Class FormProduction
         Me.ComboBox1.Size = New System.Drawing.Size(112, 21)
         Me.ComboBox1.TabIndex = 127
         '
+        'Label8
+        '
+        Me.Label8.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label8.Location = New System.Drawing.Point(659, 153)
+        Me.Label8.Name = "Label8"
+        Me.Label8.Size = New System.Drawing.Size(58, 22)
+        Me.Label8.TabIndex = 128
+        Me.Label8.Text = "Clock :"
+        Me.Label8.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Label13
+        '
+        Me.Label13.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label13.Location = New System.Drawing.Point(659, 175)
+        Me.Label13.Name = "Label13"
+        Me.Label13.Size = New System.Drawing.Size(105, 22)
+        Me.Label13.TabIndex = 129
+        Me.Label13.Text = "Process State :"
+        Me.Label13.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'Label15
+        '
+        Me.Label15.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.Label15.Location = New System.Drawing.Point(659, 197)
+        Me.Label15.Name = "Label15"
+        Me.Label15.Size = New System.Drawing.Size(154, 22)
+        Me.Label15.TabIndex = 130
+        Me.Label15.Text = "Previous Process State :"
+        Me.Label15.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'LabelPrevProcessState
+        '
+        Me.LabelPrevProcessState.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelPrevProcessState.Location = New System.Drawing.Point(809, 197)
+        Me.LabelPrevProcessState.Name = "LabelPrevProcessState"
+        Me.LabelPrevProcessState.Size = New System.Drawing.Size(154, 22)
+        Me.LabelPrevProcessState.TabIndex = 133
+        Me.LabelPrevProcessState.Text = "-"
+        Me.LabelPrevProcessState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'LabelProcessState
+        '
+        Me.LabelProcessState.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelProcessState.Location = New System.Drawing.Point(809, 175)
+        Me.LabelProcessState.Name = "LabelProcessState"
+        Me.LabelProcessState.Size = New System.Drawing.Size(105, 22)
+        Me.LabelProcessState.TabIndex = 132
+        Me.LabelProcessState.Text = "-"
+        Me.LabelProcessState.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
+        'LabelClock
+        '
+        Me.LabelClock.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.LabelClock.Location = New System.Drawing.Point(809, 153)
+        Me.LabelClock.Name = "LabelClock"
+        Me.LabelClock.Size = New System.Drawing.Size(58, 22)
+        Me.LabelClock.TabIndex = 131
+        Me.LabelClock.Text = "-"
+        Me.LabelClock.TextAlign = System.Drawing.ContentAlignment.MiddleLeft
+        '
         'FormProduction
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
@@ -560,6 +626,12 @@ Partial Class FormProduction
         Me.BackColor = System.Drawing.Color.WhiteSmoke
         Me.ClientSize = New System.Drawing.Size(1300, 504)
         Me.ControlBox = False
+        Me.Controls.Add(Me.LabelPrevProcessState)
+        Me.Controls.Add(Me.LabelProcessState)
+        Me.Controls.Add(Me.LabelClock)
+        Me.Controls.Add(Me.Label15)
+        Me.Controls.Add(Me.Label13)
+        Me.Controls.Add(Me.Label8)
         Me.Controls.Add(Me.ComboBox1)
         Me.Controls.Add(Me.Button7)
         Me.Controls.Add(Me.Button6)
@@ -637,4 +709,10 @@ Partial Class FormProduction
     Friend WithEvents Button6 As System.Windows.Forms.Button
     Friend WithEvents Button7 As System.Windows.Forms.Button
     Friend WithEvents ComboBox1 As System.Windows.Forms.ComboBox
+    Friend WithEvents Label8 As Label
+    Friend WithEvents Label13 As Label
+    Friend WithEvents Label15 As Label
+    Friend WithEvents LabelPrevProcessState As Label
+    Friend WithEvents LabelProcessState As Label
+    Friend WithEvents LabelClock As Label
 End Class

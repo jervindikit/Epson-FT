@@ -120,7 +120,7 @@ Public Class S6F11
                         secsItem_V = secsItem_Lb.Value(i)
 
                         If My.Settings.EventReportEnable Then  '170105 \783 \Config SECSGEM ID
-                            Select Case definedReport.VID(i)
+                            Select Case definedReport.VID(i).ToString()
 
                                 Case SecsID.LotIDSVID
                                     eq.LotID = CType(secsItem_V.Value, String)
@@ -148,14 +148,12 @@ Public Class S6F11
 
 
                         Select Case definedReport.VID(i)   '160722 \783  common secs data type
-
-                            Case 11
-                                eq.EQStatus = CType(CType(secsItem_V, SecsItemU1).Value(0), EquipmentState)
-                            Case 10
+                            Case 1002 'CLOCK
+                                eq.Clock = CType(secsItem_V.Value, String)
+                            Case 1008 'Previous Equipment Status
                                 eq.PreEQStatus = CType(CType(secsItem_V, SecsItemU1).Value(0), EquipmentState)
-                            Case 1
-                                '   eq.PreEQStatus = CType(CType(secsItem_V, SecsItemU1).Value(0), EquipmentState)
-
+                            Case 1009 'PROCESS STATE CHANGE
+                                eq.EQStatus = CType(CType(secsItem_V, SecsItemU1).Value(0), EquipmentState)
                                 'Case 101 'control status
                                 '    eq.ControlState = CType(CType(secsItem_V, SecsItemU1).Value(0), ControlStateType)
                                 'Case 102 'eq status

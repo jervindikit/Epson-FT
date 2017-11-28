@@ -12,19 +12,12 @@ Imports System.Data.SqlClient
 
 Public Class FormMain
     Implements IDiebondDataAdaptorClient
-
-
-
-
-
-
     'Revision History ---------------------------------------------------------------
     '+ FEB.16.16,Prasarn    | Software issue
     '+ SecsGem All Reply Event to Frm Product    |Jun.14.2016
     '+ Relaese Ver1.01_170313"   \783 Reload CellconTag
     '+ Relaese Ver1.01_170403"   \783 TDC Control by web
     '+ Relaese Ver1.01_170408"   \783 Authen warning datail
-
     '===============================================================================
 
 
@@ -310,8 +303,6 @@ Public Class FormMain
         childForm.Dock = DockStyle.Fill
         'Activate the newly created Tabpage
         TabControlFormProduction.SelectedTab = tp
-
-
     End Sub
 
 

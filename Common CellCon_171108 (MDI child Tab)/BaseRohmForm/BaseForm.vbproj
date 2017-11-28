@@ -79,16 +79,19 @@
     </Reference>
     <Reference Include="CellcontrollerDataAdapter, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\xCellcon\CellcontrollerDataAdapter\bin\Debug\CellcontrollerDataAdapter.dll</HintPath>
+      <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\CellcontrollerDataAdapter.dll</HintPath>
     </Reference>
     <Reference Include="MapConverterForCanon">
       <HintPath>dllSource\MapConverterForCanon.dll</HintPath>
     </Reference>
+    <Reference Include="nLibrary">
+      <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\nLibrary.dll</HintPath>
+    </Reference>
     <Reference Include="Rohm.Apcs.Tdc">
-      <HintPath>..\DLL\Rohm.Apcs.Tdc.dll</HintPath>
+      <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\Rohm.Apcs.Tdc.dll</HintPath>
     </Reference>
     <Reference Include="Rohm.Common.Model">
-      <HintPath>..\DLL\Rohm.Common.Model.dll</HintPath>
+      <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\Rohm.Common.Model.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -111,7 +114,7 @@
       <HintPath>dllSource\XtraLibrary.dll</HintPath>
     </Reference>
     <Reference Include="yezpedLibrary.WaferSlip">
-      <HintPath>..\DLL\yezpedLibrary.WaferSlip.dll</HintPath>
+      <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\yezpedLibrary.WaferSlip.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
