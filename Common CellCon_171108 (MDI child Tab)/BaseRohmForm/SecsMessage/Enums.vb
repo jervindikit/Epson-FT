@@ -1,5 +1,4 @@
 ﻿#Region "State Models"
-
 Public Enum ControlStateType As Byte
     OFFLINE = 0
     ONLINE_LOCAL = 1
@@ -7,8 +6,7 @@ Public Enum ControlStateType As Byte
     EQUIPMENT_OFFLINE = 3
     HOST_OFFLINE = 4
 End Enum
-
-Public Enum EquipmentState As Byte
+Public Enum ProcessStateType As Byte
     INIT = 1
     IDLE = 2
     READY = 3
@@ -17,32 +15,35 @@ Public Enum EquipmentState As Byte
     PAUSE = 6
     SYSTEM_ERROR = 7
 End Enum
-
-#End Region
-
-#Region "Custom Enum Addition"
-Public Enum DoorState As Byte
-    [None] = 0
-    [Locked] = 1
-    [Unlocked] = 2
+Public Enum StartModeType As Byte
+    INITIAL_START = 0
+    CONTINUOUS_START = 1
+    RETEST_START = 2
+    RETEST_CONTINUOUS_START = 3
+    MANUAL_CLEANING = 6
 End Enum
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Public Enum AlarmType As Byte
+    OPERATOR_CALL = 0
+    JAM = 1
+    WARNING = 2
+End Enum
 #End Region
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 #Region "SECS-II data item list"

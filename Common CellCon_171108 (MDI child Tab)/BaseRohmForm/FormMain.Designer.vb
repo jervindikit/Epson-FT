@@ -142,7 +142,7 @@ Partial Class FormMain
         Me.ToolStripLabelMessage.AutoSize = False
         Me.ToolStripLabelMessage.BackColor = System.Drawing.SystemColors.ControlLight
         Me.ToolStripLabelMessage.BorderSides = System.Windows.Forms.ToolStripStatusLabelBorderSides.Right
-        Me.ToolStripLabelMessage.ForeColor = System.Drawing.Color.DarkOrange
+        Me.ToolStripLabelMessage.ForeColor = System.Drawing.Color.Black
         Me.ToolStripLabelMessage.Name = "ToolStripLabelMessage"
         Me.ToolStripLabelMessage.Size = New System.Drawing.Size(185, 34)
         Me.ToolStripLabelMessage.Text = "                            "
@@ -163,6 +163,7 @@ Partial Class FormMain
         'TabControlFormProduction
         '
         Me.TabControlFormProduction.Dock = System.Windows.Forms.DockStyle.Top
+        Me.TabControlFormProduction.Font = New System.Drawing.Font("Century Gothic", 14.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.TabControlFormProduction.Location = New System.Drawing.Point(0, 25)
         Me.TabControlFormProduction.Name = "TabControlFormProduction"
         Me.TabControlFormProduction.SelectedIndex = 0

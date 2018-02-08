@@ -124,8 +124,9 @@ Public Class FormMain
             Using con As SqlConnection = New SqlConnection(My.Settings.SecsConnStr)
                 Dim IPAddress As String = ""
                 For Each obj In System.Net.Dns.GetHostEntry(Name).AddressList
-                    If obj.ToString Like "172*" Or obj.ToString Like "10.28*" Then
+                    If obj.ToString Like "172*" Or obj.ToString Like "10*" Then
                         IPAddress = obj.ToString
+                        IPAddress = "172.27.21.254"
                     End If
                 Next
 
@@ -153,7 +154,7 @@ Public Class FormMain
                 linkTable.ReadXmlSchema(My.Application.Info.DirectoryPath & "\LinkTableSchema.xml")
                 linkTable.ReadXml(My.Application.Info.DirectoryPath & "\LinkTable.xml")
                 If linkTable.Rows(0)("MachineType").ToString <> My.Settings.MCType Then
-                    ToolStripLabelMessage.Text = "Load Err Machine type in Setting difference from File (" & _
+                    ToolStripLabelMessage.Text = "Load Err Machine type in Setting difference from File (" &
                         linkTable.Rows(0)("MachineType").ToString & ")" & Format(Now, " |HH:mm:ss.fff")
                     Exit Sub
                 End If
@@ -164,7 +165,7 @@ Public Class FormMain
                 defReportTable.ReadXmlSchema(My.Application.Info.DirectoryPath & "\DefReportSchema.xml")
                 defReportTable.ReadXml(My.Application.Info.DirectoryPath & "\DefReport.xml")
                 If defReportTable.Rows(0)("MachineType").ToString <> My.Settings.MCType Then          '170328 \783 check machine type before load from file
-                    ToolStripLabelMessage.Text = "Load Err Machine type in Setting difference from File (" & _
+                    ToolStripLabelMessage.Text = "Load Err Machine type in Setting difference from File (" &
                         defReportTable.Rows(0)("MachineType").ToString & ")" & Format(Now, " |HH:mm:ss.fff")
                     Exit Sub
                 End If
@@ -175,37 +176,24 @@ Public Class FormMain
             SaveCatchLog(ex.ToString, "LoadLinkReportAndDefineReportFromFile()")
             ToolStripLabelMessage.Text = "Report Download FromFile Error"
         End Try
-
     End Sub
-
     Public Sub ShowStatusBar(message As String)
         ToolStripLabelMessage.Text = message
     End Sub
-
-
 #End Region
-
-
-
-
-
 #Region "UserInterface"
-
     Private Sub CascadeToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles CascadeToolStripMenuItem.Click
         ProductionFrmDockNone()
         Me.LayoutMdi(MdiLayout.Cascade)
     End Sub
-
     Private Sub TileVerticalToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TileVerticalToolStripMenuItem.Click
         ProductionFrmDockNone()
         Me.LayoutMdi(MdiLayout.TileVertical)
     End Sub
-
     Private Sub TileHorizontalToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles TileHorizontalToolStripMenuItem.Click
         ProductionFrmDockNone()
         Me.LayoutMdi(MdiLayout.TileHorizontal)
     End Sub
-
     Private Sub MiniToolStrip_Click(sender As System.Object, e As System.EventArgs) Handles MiniToolStrip.Click
         Me.WindowState = FormWindowState.Minimized
     End Sub
@@ -213,16 +201,13 @@ Public Class FormMain
         For Each child As FormProduction In Me.MdiChildren
             child.Dock = DockStyle.Fill
         Next
-
     End Sub
     Private Sub FormToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles FormToolStripMenuItem.Click
         Dim frm As FormFloatingMenu = FormFloatingMenu.GetInstance()
         frm.Width = Me.Width - 5
-
         If Not frm.Visible Then
             frm.Show()
         End If
-
         If frm.WindowState = FormWindowState.Minimized Then
             frm.WindowState = FormWindowState.Normal
             frm.Select()
@@ -230,41 +215,27 @@ Public Class FormMain
         frm.BringToFront()
         frm.Location = New Point(MenuStrip.Location.X, MenuStrip.Location.Y + 25)
     End Sub
-
     Private Sub MinimizeToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MinimizeToolStripMenuItem.Click
         Me.SendToBack()
     End Sub
-
     Private Sub AboutToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles AboutToolStripMenuItem.Click
         MsgBox("Cellcon Software version " & CelconVer, MsgBoxStyle.Information, NetVerSion)
     End Sub
-
     Private Sub ProductionFrmDockNone()
-
         For Each child As FormProduction In Me.MdiChildren
             child.Dock = DockStyle.None
         Next
-
     End Sub
-
 #End Region
-
-
-
-
     'Private Sub S2F13(ByVal UList As List(Of UInt32)) Handles FrmSecs.E_S2F13
     '    Send_S2F13(UList)
     'End Sub
-
     'Private Sub S5F3(ByVal Enable As Boolean, Optional ByVal ALID As UInteger = Nothing)
-
     '    Send_S5F3(Enable, ALID)
     'End Sub
-
     'Private Sub S10F3(ByVal ID As Integer, ByVal msg As String) Handles FrmSecs.E_S10F3
     '    Send_S10F3(CByte(ID), msg)
     'End Sub
-
     'Private m_SlbS As UpdateTextDelegate = New UpdateTextDelegate(AddressOf SlbStatusFrmSecs)
     'Private Sub SlbStatusFrmSecs(ByVal informationText As String)
     '    If Me.InvokeRequired Then
@@ -274,42 +245,30 @@ Public Class FormMain
     '    End If
     '    FrmSecs.sblStatus.Text = informationText
     'End Sub
-
-
-
 #Region "MDI children to Tab page"
-
     Private Sub CreateFormProductionAndTabPage(ByVal mcNo As String, ByVal ipAddress As String)
-
         'Creating MDI child form and initialize its fields
         Dim childForm As New FormProduction(mcNo, ipAddress, My.Settings.SECS_PortNumber)
         childForm.Text = mcNo
         childForm.MdiParent = Me
-
+        childForm.lblIPAddress.Text = ipAddress
+        childForm.lblLocalPort.Text = My.Settings.SECS_PortNumber.ToString
         'child Form will now hold a reference value to the tab control
         childForm.TabCtrl = TabControlFormProduction
-
         'Add a Tabpage and enables it
         Dim tp As New TabPage()
         tp.Parent = TabControlFormProduction
         tp.Text = childForm.Text
         tp.Show()
-
         'child Form will now hold a reference value to a tabpage
         childForm.TabPage = tp
-
         'Activate the MDI child form
         childForm.Show()
         childForm.Dock = DockStyle.Fill
         'Activate the newly created Tabpage
         TabControlFormProduction.SelectedTab = tp
     End Sub
-
-
-
-
     Private Sub TabControlFormProduction_SelectedIndexChanged(sender As System.Object, e As System.EventArgs) Handles TabControlFormProduction.SelectedIndexChanged
-
         For Each child As Form In Me.MdiChildren
             Dim pForm As FormProduction = DirectCast(child, FormProduction)
             If pForm IsNot Nothing AndAlso pForm.TabPage.Equals(TabControlFormProduction.SelectedTab) Then
@@ -317,9 +276,7 @@ Public Class FormMain
                 Exit For
             End If
         Next
-
     End Sub
-
     Function SelectedFormProduction() As FormProduction
         For Each child As Form In Me.MdiChildren
             Dim pForm As FormProduction = DirectCast(child, FormProduction)

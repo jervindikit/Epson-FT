@@ -242,8 +242,6 @@ Public Class CellConObj          '160906 \783 Add Class
             _LotID = value
         End Set
     End Property
-
-
     Private _Package As String
     Public Property Package() As String
         Get

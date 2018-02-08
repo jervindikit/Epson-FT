@@ -15,7 +15,7 @@ Option Explicit On
 Namespace My
     
     <Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute(),  _
-     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "15.3.0.0"),  _
+     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "14.0.0.0"),  _
      Global.System.ComponentModel.EditorBrowsableAttribute(Global.System.ComponentModel.EditorBrowsableState.Advanced)>  _
     Partial Friend NotInheritable Class MySettings
         Inherits Global.System.Configuration.ApplicationSettingsBase
@@ -29,7 +29,7 @@ Namespace My
     Private Shared addedHandlerLockObject As New Object
 
     <Global.System.Diagnostics.DebuggerNonUserCodeAttribute(), Global.System.ComponentModel.EditorBrowsableAttribute(Global.System.ComponentModel.EditorBrowsableState.Advanced)> _
-    Private Shared Sub AutoSaveSettings(sender As Global.System.Object, e As Global.System.EventArgs)
+    Private Shared Sub AutoSaveSettings(ByVal sender As Global.System.Object, ByVal e As Global.System.EventArgs)
         If My.Application.SaveMySettingsOnExit Then
             My.Settings.Save()
         End If
@@ -56,7 +56,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("DB")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("FT")>  _
         Public Property ProcessName() As String
             Get
                 Return CType(Me("ProcessName"),String)
@@ -68,7 +68,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("FICO_FCL-X")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("NS8080SH")>  _
         Public Property MCType() As String
             Get
                 Return CType(Me("MCType"),String)
@@ -80,7 +80,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Rohm-01")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("EPSON-01")>  _
         Public Property EquipmentNo() As String
             Get
                 Return CType(Me("EquipmentNo"),String)
@@ -92,7 +92,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=172.16.0.102;Initial Catalog=DBx;Persist Security Info=True;User ID=d"& _ 
+         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=10.20.10.253;Initial Catalog=DBx;Persist Security Info=True;User ID=d"& _ 
             "bxuser")>  _
         Public Property SecsConnStr() As String
             Get
@@ -117,7 +117,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("5040")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("5000")>  _
         Public Property SECS_PortNumber() As Integer
             Get
                 Return CType(Me("SECS_PortNumber"),Integer)
@@ -261,7 +261,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("5040")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("5000")>  _
         Public Property CsProtocolPort() As Integer
             Get
                 Return CType(Me("CsProtocolPort"),Integer)
@@ -273,7 +273,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("DB-OP")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("FT-OP")>  _
         Public Property UserAuthenOP() As String
             Get
                 Return CType(Me("UserAuthenOP"),String)
@@ -285,7 +285,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("DB-GL")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("FT-GL")>  _
         Public Property UserAuthenGL() As String
             Get
                 Return CType(Me("UserAuthenGL"),String)
@@ -310,7 +310,7 @@ Namespace My
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.SpecialSettingAttribute(Global.System.Configuration.SpecialSetting.ConnectionString),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=172.16.0.102;Initial Catalog=DBx;Persist Security Info=True;User ID=d"& _ 
+         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=10.20.10.253;Initial Catalog=DBx;Persist Security Info=True;User ID=d"& _ 
             "bxuser")>  _
         Public ReadOnly Property DBxConnectionString() As String
             Get
@@ -429,7 +429,7 @@ Namespace My
         <Global.System.Configuration.ApplicationScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.SpecialSettingAttribute(Global.System.Configuration.SpecialSetting.ConnectionString),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=172.16.0.102;Initial Catalog=APCSDB;Persist Security Info=True;User I"& _ 
+         Global.System.Configuration.DefaultSettingValueAttribute("Data Source=10.20.10.253;Initial Catalog=APCSDB;Persist Security Info=True;User I"& _ 
             "D=apcsdbuser")>  _
         Public ReadOnly Property ApcsDBConnString() As String
             Get

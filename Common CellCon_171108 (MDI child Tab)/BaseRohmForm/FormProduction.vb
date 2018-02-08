@@ -8,6 +8,7 @@ Imports yezpedLibrary.WaferSlip
 Imports CellcontrollerDataAdapter
 Imports System.ServiceModel
 Imports Rohm.Common.Model
+Imports Rohm.Common.Forms
 '<ServiceBehavior(InstanceContextMode:=ServiceModel.InstanceContextMode.Single)>
 Public Class FormProduction
 #Region "Commomn Define"
@@ -19,6 +20,7 @@ Public Class FormProduction
     'Private c_ServiceProxy As DiebondDataAdaptorServiceProxy
     Dim CellConTag As New CellConObj
     Private Delegate Sub S6F11Delegate(ByVal Obj As S6F11)
+    Private Delegate Sub S5F1Delegate(ByVal Obj As S5F1) '2017.11.29 - 9263/JERVIN
     Private Delegate Sub S2F42Delegate(ByVal CMD As String, ByVal Reply As S2F42)
     Private Delegate Sub SxFxxDelegate(ByVal e As SecondarySecsMessageEventArgs)
     Private Delegate Sub SxFxxPriDelegate(ByVal state As Object)
@@ -34,148 +36,6 @@ Public Class FormProduction
         Dim AlarmSet As Boolean
     End Structure
 #End Region
-   
-
-    
-
-#Region "Secs Events"
-
-    Private Sub c_Host_CommLog(ByVal sender As Object, ByVal e As TraceLogEventArgs)  '160930 \783 Revise FrmSecsDisplay
-        'save log
-    End Sub
-
-    Private Sub c_Host_ReceivedPrimaryMessage(ByVal sender As Object, ByVal e As PrimarySecsMessageEventArgs)
-        Dim msg As SecsMessageBase = e.Primary
-
-        Try
-            Select Case msg.Stream
-                Case 1
-                    Select Case msg.Function
-                        Case 1 'Are You Online?
-                            Dim msgS1F2 As SecsMessage = New SecsMessage(1, 2, False)
-                            msgS1F2.Items.Add(New SecsItemList("L0"))
-
-
-                        Case 13 'Establish Communications Request
-                            'Dim msgS1F14 As S1F14 = New S1F14()
-                            'c_Host.Reply(msg, msgS1F14)
-                            Reply_S1F13(msg)
-                    End Select
-                Case 2
-                    Select Case msg.Function
-                        Case 17 'date time request
-                            Dim msgS2F18 As S2F18 = New S2F18(TimeFormat.A16)
-                            c_Host.Reply(msg, msgS2F18)
-
-                    End Select
-                Case 5
-                    Select Case msg.Function
-                        Case 1 'Alarm Report Send
-                            Dim msgS5F1 As S5F1 = DirectCast(msg, S5F1)
-                            c_Host.Reply(msgS5F1, New S5F2())
-
-                    End Select
-                Case 6
-                    Select Case msg.Function
-                        Case 11
-                            OnS6F11(CType(msg, S6F11))
-                            'Perform_S6F11(CType(msg, S6F11))
-                            Exit Sub           '160906 \783 Call productionn form
-                    End Select
-                Case 9
-                    'dont need acknowledge
-
-                Case 10
-                    Perform_S10(msg)
-
-                Case 64
-                    Select Case msg.Function
-                        Case 1 'supply tube id was read
-                            'Perform_S64F1(CType(msg, S64F1))
-                        Case 3 'tube changed
-                            'Perform_S64F3(CType(msg, S64F3))
-                        Case 11 'request new tube id for print
-                            'Perform_S64F11(CType(msg, S64F11))
-                    End Select
-            End Select
-
-        Catch ex As Exception
-            SaveCatchLog("ProcessSecsMessage() Primary message recieve  : S" & msg.Stream & "F" & msg.Function, ex.ToString)
-        End Try
-
-    End Sub
-
-    Private Sub c_Host_ReceivedSecondaryMessage(ByVal sender As Object, ByVal e As SecondarySecsMessageEventArgs)
-
-        Dim priMsg As SecsMessageBase = e.Primary
-        Dim sndMsg As SecsMessageBase = e.Secondary
-
-        Select Case priMsg.Stream
-            Case 1
-                Select Case priMsg.Function
-                    Case 13
-                        Dim reply As S1F14E = DirectCast(sndMsg, S1F14E)
-                        If reply.COMMACK = COMMACK.OK Then
-                            UpdateStateThreadSafe("COMMUNICATING (Host Init)")
-                            'GoOnline()     ' Eq Communication Revise  160627 \783
-                        End If
-
-                    Case 3
-
-                    Case 17
-
-                End Select 'End Select S1Fx
-
-            Case 2
-                Select Case priMsg.Function
-
-                    Case 13
-
-                    Case 15
-
-                    Case 33
-
-                    Case 35
-
-                    Case 37
-
-                    Case 43
-
-                End Select 'End of Select Function of Stream 2
-
-            Case 5
-                Select Case priMsg.Function
-                    Case 3
-
-                End Select
-
-            Case 6
-                Select Case priMsg.Function
-                    Case 23
-
-                End Select
-
-
-        End Select 'Select Stream end
-
- 
-
-    End Sub
-
-    Private Sub c_Host_ErrorNotification(ByVal sender As Object, ByVal e As SecsErrorNotificationEventArgs)
-     
-    End Sub
-
-    Private Sub c_Host_ConversionErrored(ByVal sender As Object, ByVal e As ConversionErrorEventArgs)
-        
-    End Sub
-
-   
-
-#End Region
-
-
-
 #Region "Form main zone"
     Public Sub New(mcNo As String, ip As String, portNo As Integer)
 
@@ -188,7 +48,7 @@ Public Class FormProduction
         ' Add any initialization after the InitializeComponent() call.
         c_McNo = mcNo
         c_IP = ip
-        lbMcNo.Text = mcNo
+        lblMachineNo.Text = mcNo
 
         Dim gemOption As New GemOption
 
@@ -256,6 +116,8 @@ Public Class FormProduction
         secsParser.RegisterCustomSecsMessage(GetType(S2F17))
         secsParser.RegisterCustomSecsMessage(GetType(S5F1))
         secsParser.RegisterCustomSecsMessage(GetType(S5F4))
+        secsParser.RegisterCustomSecsMessage(GetType(S5F4))
+        secsParser.RegisterCustomSecsMessage(GetType(S5F4))
         secsParser.RegisterCustomSecsMessage(GetType(S6F11))
         secsParser.RegisterCustomSecsMessage(GetType(S6F24))
         secsParser.RegisterCustomSecsMessage(GetType(S7F2))
@@ -304,39 +166,36 @@ Public Class FormProduction
     ' Command For Clear all data table
 
 
-    Private Sub EqConnectToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles EqConnectToolStripMenuItem.Click
+    Private Sub EqConnectToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
 
     End Sub
 
-    Private Sub pbxLogo_Click(sender As System.Object, e As System.EventArgs) Handles pbxLogo.Click, MaximizeToolStripMenuItem.Click
+    Private Sub pbxLogo_Click(sender As System.Object, e As System.EventArgs)
 
     End Sub
 
 
     Private Sub ProcessForm_Load(sender As System.Object, e As System.EventArgs) Handles MyBase.Load
-
         c_Host.Connect()
         If Not CommuniationState Like "COMMUNICATING*" Then
             Me.BackColor = Color.Red
         End If
-        ComboBox1.DataSource = (System.[Enum].GetValues(GetType(m_ProcessingStates)))
-
-
+        'ComboBox1.DataSource = (System.[Enum].GetValues(GetType(m_ProcessingStates)))
     End Sub
 
 
-    Private Sub SecsConsoleToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles SecsConsoleToolStripMenuItem.Click
+    Private Sub SecsConsoleToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         ShowFormManageSecsHost()
         c_FormManageHsmsHost.TabAdmin.SelectedTab = c_FormManageHsmsHost.TabPageCommLog
     End Sub
 
 
-    Private Sub BMRequestToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles BMRequestToolStripMenuItem.Click
+    Private Sub BMRequestToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         Dim tmpStr As String
 
         tmpStr = "MCNo=" & My.Settings.EquipmentNo
-        tmpStr = tmpStr & "&LotNo=" & lbLotNo.Text
-        If lbStartTime.Text <> "" Then 'AndAlso lbEndTime.Text = "" Then
+        tmpStr = tmpStr & "&LotNo=" & lblLotNo.Text
+        If lblStartTime.Text <> "" Then 'AndAlso lbEndTime.Text = "" Then
             tmpStr = tmpStr & "&MCStatus=Running"
         Else
             tmpStr = tmpStr & "&MCStatus=Stop"
@@ -349,17 +208,17 @@ Public Class FormProduction
         'Process.Start("C:\WINDOWS\system32\osk.exe")
     End Sub
 
-    Private Sub PMRepairToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles PMRepairToolStripMenuItem.Click
+    Private Sub PMRepairToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         Dim MCNo As String = My.Settings.EquipmentNo
         Call Shell("C:\Program Files\Internet Explorer\iexplore.exe http://webserv.thematrix.net/LsiPETE/LSI_Prog/Maintenance/MainPMlogin.asp?" & "MCNo=" & MCNo, vbNormalFocus)
     End Sub
 
 
-    Private Sub ByAutoToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ByAutoToolStripMenuItem.Click  '161019 \783
+    Private Sub ByAutoToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)   '161019 \783
         Try
             Dim requestUrl As String             'Call Andon by pass parameter 161029 \783
             requestUrl = String.Format("http://webserv.thematrix.net/andontmn/Client/Default.aspx?p={0}&mc={1}&lot={2}&pkg={3}&dv={4}&line={5}&op={6}",
-                                        My.Settings.ProcessName, lbMcNo.Text, lbLotNo.Text, lbPackage.Text, lbDevice.Text, "", lbOPID.Text)
+                                        My.Settings.ProcessName, lblMachineNo.Text, lblLotNo.Text, lblLotPackageName.Text, lblLotAssyDeviceName.Text, "", lblOperatorNoStart.Text)
             Call Shell("C:\Program Files\Internet Explorer\iexplore.exe " & requestUrl, AppWinStyle.NormalFocus)
 
         Catch ex As Exception
@@ -367,7 +226,7 @@ Public Class FormProduction
         End Try
     End Sub
 
-    Private Sub ByManualToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles ByManualToolStripMenuItem.Click
+    Private Sub ByManualToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         Try
             Call Shell("C:\Program Files\Internet Explorer\iexplore.exe http://webserv/andontmn", AppWinStyle.NormalFocus) 'Web andon for manual M/C     'Maual input
         Catch ex As Exception
@@ -375,12 +234,12 @@ Public Class FormProduction
         End Try
     End Sub
 
-    Private Sub APCSStaffToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles APCSStaffToolStripMenuItem.Click
+    Private Sub APCSStaffToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         Call Shell("C:\Program Files\Internet Explorer\iexplore.exe http://webserv.thematrix.net/ApcsStaff", AppWinStyle.NormalFocus)
 
     End Sub
 
-    Private Sub WorkRecordToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs) Handles WorkRecordToolStripMenuItem.Click
+    Private Sub WorkRecordToolStripMenuItem_Click(sender As System.Object, e As System.EventArgs)
         Try
             Call Shell("C:\Program Files\Internet Explorer\iexplore.exe http://webserv/ERECORD/", AppWinStyle.NormalFocus)
         Catch ex As Exception
@@ -765,7 +624,7 @@ Public Class FormProduction
         'CellConTag.WaferLotID = Lotdata.WaferLotNo
         'CellConTag.LSMode = OprData.LSMode
 
-        UpdateLabelsText()
+        'UpdateLabelsText()
 
 
 
@@ -791,50 +650,6 @@ Public Class FormProduction
 
 
     End Sub
-
-
-    Private Sub Lotstart(Optional ByVal LsMode As RunModeType = RunModeType.Normal)
-        Dim datex As Date = Now
-        lbStartTime.Text = Format(datex, "yyyy/MM/dd HH:mm:ss")
-        CellConTag.LotStartTime = lbStartTime.Text
-        'RaiseEvent E_LSCheck(CellConTag.MCNo, CellConTag.LotID, datex, CellConTag.OPID, LsMode)
-        If Not My.Settings.TDC_Enable Then
-            CellConTag.LSReply = "TDC Disable"
-            If CellConTag.LotID <> "" Then    '170404 \783
-                WriteToXmlCellcon(CellconObjPath & "\" & lbLotNo.Text & ".xml", CellConTag)  '170126 \783 CellconTag
-            End If
-
-        End If
-
-        'FormMain.GetInstance.c_ServiceProxy.DiebondLotStart(lbMcNo.Text, datex)
-    End Sub
-
-
-    Private Sub LotEnd(Optional ByVal LeMode As EndModeType = EndModeType.Normal)
-
-        Dim datex As Date = Now
-        lbEndTime.Text = Format(datex, "yyyy/MM/dd HH:mm:ss")
-        CellConTag.LotEndTime = lbEndTime.Text
-
-        CellConTag.TotalGoodPcs = CInt(CellConTag.GoodCat1 + CellConTag.GoodCat2)
-        CellConTag.TotalNGPcs = CInt(CellConTag.NGbin1 + CellConTag.NGbin2 + CellConTag.NGbin3 + CellConTag.NGbin4 + CellConTag.NGbin5 + CellConTag.NGbin6)
-        lbNGTotal.Text = CStr(CellConTag.TotalNGPcs)
-        lbGoodTotal.Text = CStr(CellConTag.TotalGoodPcs)
-
-        FormMain.GetInstance.c_ServiceProxy.DiebondLotEnd(lbMcNo.Text, datex, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs)
-        'RaiseEvent E_LECheck(CellConTag.MCNo, CellConTag.LotID, datex, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs, CellConTag.OPID, LeMode)
-        CleanLog(1000) '1G backup limit
-        BackUpLotClean()
-        If Not My.Settings.TDC_Enable Then
-            CellConTag.LEReply = "TDC Disable"
-            If CellConTag.LotID <> "" Then    '170404 \783
-                WriteToXmlCellcon(CellconObjPath & "\" & CellConTag.LotID & ".xml", CellConTag)  '170126 \783 CellconTag
-            End If
-
-            CellConTag = New CellConObj              'Clear data
-        End If
-    End Sub
-
     Private Sub Reload(Optional ByVal LotId As String = "")  '170330 \783 Reload File Addition
         'Try
         '    If LotId = "" Then
@@ -1006,48 +821,337 @@ Public Class FormProduction
     End Function
 
 
-    Private Sub Button4_Click(sender As System.Object, e As System.EventArgs) Handles Button4.Click
-        Lotstart(CType(CellConTag.LSMode, RunModeType))
+    Private Sub Button4_Click(sender As System.Object, e As System.EventArgs)
+        'Lotstart(CType(CellConTag.LSMode, RunModeType))
         'RaiseEvent E_MakeAlarmCellCon("5555", "", "", "")
 
     End Sub
 
-    Private Sub Button5_Click(sender As System.Object, e As System.EventArgs) Handles Button5.Click
-        LotEnd(EndModeType.Normal)
+    Private Sub Button5_Click(sender As System.Object, e As System.EventArgs)
+        'LotEnd(EndModeType.Normal)
     End Sub
 
     Private Sub FicoAddLot(ByVal LotNo As String)
         Send_S2F49_EnhancedRemoteCommand("ADD_LOT", "LotID", LotNo)
     End Sub
-
-    Private Sub UpdateLabelsText()  '170330 \783 Reload File Addition
-
-        lbLotNo.Text = CellConTag.LotID
-        lbPackage.Text = CellConTag.Package
-        lbDevice.Text = CellConTag.DeviceName
-        lbRecipe.Text = CellConTag.Recipe
-        lbMcNo.Text = CellConTag.MCNo
-        lbOPID.Text = CellConTag.OPID
-        lbInputTotal.Text = CellConTag.INPUTQty
-        lbStartTime.Text = CellConTag.LotStartTime
-        lbEndTime.Text = CellConTag.LotEndTime
-        'lbWaferLotNo.Text = CellConTag.WaferLotID
-        'lbWaferNo.Text = CellConTag.CurrentWaferID
-        LabelClock.Text = m_Equipment.Clock
-        LabelProcessState.Text = m_Equipment.EQStatus.ToString()
-        LabelPrevProcessState.Text = m_Equipment.PreEQStatus.ToString()
+    Private Sub LotOpen821()
+        lblLotNo.Text = m_Equipment.LotNumber.Replace(" ", "")
+        lblLotPackageName.Text = m_Equipment.PackageName.Replace(" ", "")
+        lblLotAssyDeviceName.Text = m_Equipment.AssyDeviceName.Replace(" ", "")
+        lblLotFrameType.Text = m_Equipment.FrameType.Replace(" ", "")
+        lblLotFacetOrientation.Text = m_Equipment.FacetOrientation.Replace(" ", "")
+        lblLotCodeNo.Text = m_Equipment.CodeNumber.Replace(" ", "")
+        lblLotWFLotNo.Text = m_Equipment.WFLotNumber.Replace(" ", "")
+        lblLotTapingDir.Text = m_Equipment.TapingDir.Replace(" ", "")
+        lblLotMarkCategory.Text = m_Equipment.MarkCategory.Replace(" ", "")
+        lblLotMarkSpecs1.Text = m_Equipment.MarkSpecs1.Replace(" ", "")
+        lblLotMarkSpecs2.Text = m_Equipment.MarkSpecs2.Replace(" ", "")
+        lblLotMarkSpecs3.Text = m_Equipment.MarkSpecs3.Replace(" ", "")
+        lblLotLinesForMark.Text = m_Equipment.LinesForMark.Replace(" ", "")
+        lblLotOSFTSwitch.Text = m_Equipment.OSFTSwitch.Replace(" ", "")
+        lblLotOSProgram.Text = m_Equipment.OSProgram.Replace(" ", "")
+        lblLotResinType.Text = m_Equipment.ResinType.Replace(" ", "")
+        lblLotNewPackageName.Text = m_Equipment.NewPackageName.Replace(" ", "")
+        lblLotFTDeviceName.Text = m_Equipment.FTDeviceName.Replace(" ", "")
+        lblLotMarkingNo.Text = m_Equipment.MarkingNumber.Replace(" ", "")
+        lblLotReelColor.Text = m_Equipment.ReelColor.Replace(" ", "")
+        lblLotULMark.Text = m_Equipment.ULMark.Replace(" ", "")
+        lblLotQtyPerReel.Text = m_Equipment.QtyPerReel.Replace(" ", "")
+        lblLotClaimCountermeasure.Text = m_Equipment.ClaimCountermeasure.Replace(" ", "")
+        lblLotSubRank.Text = m_Equipment.SubRank.Replace(" ", "")
+        lblLotMask.Text = m_Equipment.Mask.Replace(" ", "")
     End Sub
-
-
-
-
-
+    Private Sub LotStart800()
+        'SET START TIME
+        Dim STime As Date = Now
+        lblStartTime.Text = Format(STime, "yyyy-MM-dd HH:mm:ss")
+        'FTOIS DATA
+        lblFTOISHeader.Text = m_Equipment.FTOISHeader.Replace(" ", "")
+        lblFTOISDeviceName.Text = m_Equipment.FTOISDeviceName.Replace(" ", "")
+        lblFTOISInputRank.Text = m_Equipment.FTOISInputRank.Replace(" ", "")
+        lblFTOISPackageName.Text = m_Equipment.FTOISPackageName.Replace(" ", "")
+        lblFTOISTestType.Text = m_Equipment.FTOISTestType.Replace(" ", "")
+        lblFTOISTesterType.Text = m_Equipment.FTOISTesterType.Replace(" ", "")
+        lblFTOISBox.Text = m_Equipment.FTOISBox.Replace(" ", "")
+        lblFTOISFTProgram.Text = m_Equipment.FTOISFTProgramName.Replace(" ", "")
+        lblFTOISMulti.Text = m_Equipment.FTOISMulti.ToString.Replace(" ", "")
+        lblFTOISPattern.Text = m_Equipment.FTOISPattern.ToString.Replace(" ", "")
+        'LOT MONITORING
+        lblRunTime.Text = ConvertToMinutes(m_Equipment.RunTime).ToString.Replace(" ", "")
+        lblAlarmTime.Text = ConvertToMinutes(m_Equipment.AlarmTime).ToString.Replace(" ", "")
+        lblLotEndWaitTime.Text = ConvertToMinutes(m_Equipment.LotWaitTime).ToString.Replace(" ", "")
+        lblPDTime.Text = ConvertToMinutes(m_Equipment.ProductionTime).ToString.Replace(" ", "")
+        lblMTBA.Text = m_Equipment.MTBA.Replace(" ", "")
+        lblMTTR.Text = m_Equipment.MTTR.Replace(" ", "")
+        'MACHINE COUNTER
+        lblGoodBin1.Text = m_Equipment.GoodBin.ToString.Replace(" ", "")
+        lblFTNG.Text = m_Equipment.FTNGBin.ToString.Replace(" ", "")
+        lblOSNG.Text = m_Equipment.OSNGBin.ToString.Replace(" ", "")
+        lblTotalNG.Text = m_Equipment.TotalNG.ToString.Replace(" ", "")
+        lblTotal.Text = m_Equipment.Total.ToString.Replace(" ", "")
+        lblASILotQty.Text = m_Equipment.ASILotQty.ToString.Replace(" ", "")
+        lblASILotInitial.Text = m_Equipment.ASILotInitial.ToString.Replace(" ", "")
+        lblASILotTerminal.Text = m_Equipment.ASILotTerminal.ToString.Replace(" ", "")
+        'LOT STATISTICS
+        lblYield.Text = m_Equipment.Yield.ToString.Replace(" ", "")
+        lblUPH.Text = m_Equipment.UPH.ToString.Replace(" ", "")
+        lblActualOPRate.Text = m_Equipment.OperationRate.ToString
+        lblInputQuantity.Text = m_Equipment.InputQty.ToString
+        lblOperatorNoStart.Text = m_Equipment.OperatorNumber
+        lblPPExecName.Text = m_Equipment.PPExecName
+        'MACHINE STATUS
+        lblLotType.Text = m_Equipment.StartMode.ToString.Replace(" ", "")
+    End Sub
+    Private Sub LotPauseResumeEndTestEnd801802803901()
+        'LOT MONITORING
+        lblRunTime.Text = ConvertToMinutes(m_Equipment.RunTime).ToString
+        lblAlarmTime.Text = ConvertToMinutes(m_Equipment.AlarmTime).ToString
+        lblLotEndWaitTime.Text = ConvertToMinutes(m_Equipment.LotWaitTime).ToString
+        lblPDTime.Text = ConvertToMinutes(m_Equipment.ProductionTime).ToString
+        lblMTBA.Text = m_Equipment.MTBA
+        lblMTTR.Text = m_Equipment.MTTR
+        'ALARM DATA
+        lblAlarmCount.Text = m_Equipment.AlarmCount.ToString
+        lblAlarmID.Text = "-"
+        lblAlarmCode.Text = "-"
+        lblAlarmType.Text = "-"
+        lblAlarmText.Text = "-"
+        lblUnitName.Text = "-"
+        'LOT STATISTICS
+        lblYield.Text = m_Equipment.Yield.ToString
+        lblUPH.Text = m_Equipment.UPH.ToString
+        lblActualOPRate.Text = m_Equipment.OperationRate.ToString
+        'MACHINE COUNTER
+        lblGoodBin1.Text = m_Equipment.GoodBin.ToString
+        lblFTNG.Text = m_Equipment.FTNGBin.ToString
+        lblOSNG.Text = m_Equipment.OSNGBin.ToString
+        lblTotalNG.Text = m_Equipment.TotalNG.ToString
+        lblTotal.Text = m_Equipment.Total.ToString
+        lblASILotInitial.Text = m_Equipment.ASILotInitial.ToString
+        lblASILotTerminal.Text = m_Equipment.ASILotTerminal.ToString
+    End Sub
+    Private Sub AlarmOccur1000()
+        lblAlarmID.Text = m_Equipment.ALID.ToString
+        lblAlarmCode.Text = m_Equipment.ALCode.ToString
+        lblAlarmType.Text = m_Equipment.ALType.ToString
+        lblUnitName.Text = m_Equipment.ALUnitName.ToString
+        lblAlarmText.Text = m_Equipment.ALText.ToString
+    End Sub
+    Private Sub ProcessStateChange100(ByRef State As ProcessStateType)
+        If State = ProcessStateType.EXECUTING Then
+            SignalTower("RUNNING")
+        ElseIf State = ProcessStateType.PAUSE
+            SignalTower("STOP")
+        ElseIf State = ProcessStateType.SYSTEM_ERROR
+            SignalTower("ALARM")
+        ElseIf State = ProcessStateType.IDLE
+            SignalTower("HALT")
+        ElseIf State = ProcessStateType.INIT
+            SignalTower("INITIALIZING")
+        ElseIf State = ProcessStateType.READY
+            SignalTower("READY")
+        End If
+    End Sub
+    Private Sub SignalTower(ByVal Signal As String)
+        If Signal = "RUNNING" Then
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.Green
+            TowerRed.BackColor = Color.White
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "RUNNING"
+            lblAlarmID.Text = "-"
+            lblAlarmCode.Text = "-"
+            lblAlarmType.Text = "-"
+            lblAlarmText.Text = "-"
+            lblUnitName.Text = "-"
+        ElseIf Signal = "STOP"
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.White
+            TowerYellow.BackColor = Color.Yellow
+            lblMachineStatus.Text = "STOP"
+        ElseIf Signal = "LOTEND" Then
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.Red
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "LOT END"
+        ElseIf Signal = "ALARM"
+            tmrTower.Start()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.Red
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "ALARM"
+        ElseIf Signal = "HALT"
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.White
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "HALT"
+        ElseIf Signal = "INITIALIZING"
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.White
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "INITIALIZING"
+        ElseIf Signal = "READY"
+            tmrTower.Stop()
+            TowerGreen.BackColor = Color.White
+            TowerRed.BackColor = Color.White
+            TowerYellow.BackColor = Color.White
+            lblMachineStatus.Text = "READY"
+        End If
+    End Sub
+    Private Function ConvertToMinutes(ByVal TimeRcv As String) As Double
+        Dim strTime() As String
+        Dim sngMinutes As Double
+        Try
+            strTime = Split(TimeRcv, ":")
+            sngMinutes = CDbl(strTime(0)) * 60 + CDbl(strTime(1)) + CDbl(strTime(2)) / 60
+        Catch ex As Exception
+            'AddAppEvent("ERROR : Convert To Minutes / " + strToConvert)
+        End Try
+        Return sngMinutes
+    End Function
 #End Region
 
 
 #Region "SECS/GEM communication"
 
+    'Remote Command change in S2F41 Class for customize to each CPVAL format.------------------160705 \783 Addition Remote example
+    'Example for CPVAL is string type
+    Private Sub SendRemoteCommand(ByVal RCmd As String, Optional ByVal CmdPName As String = "", Optional ByVal CmdPVal As String = "")
+        Dim cmd As S2F41 = New S2F41()
+        cmd.RemoteCommand = RCmd
+        If CmdPName <> "" And CmdPVal <> "" Then
+            cmd.AddVariable(CmdPName, CmdPVal)
+        End If
+        c_Host.Send(cmd)
+    End Sub
+#Region "Secs Events"
+    Private Sub c_Host_CommLog(ByVal sender As Object, ByVal e As TraceLogEventArgs)  '160930 \783 Revise FrmSecsDisplay
+        'save log
+    End Sub
+    Private Sub c_Host_ReceivedPrimaryMessage(ByVal sender As Object, ByVal e As PrimarySecsMessageEventArgs)
+        Dim msg As SecsMessageBase = e.Primary
+        Try
+            Select Case msg.Stream
+                Case 1
+                    Select Case msg.Function
+                        Case 1 'Are You Online?
+                            Dim msgS1F2 As SecsMessage = New SecsMessage(1, 2, False)
+                            msgS1F2.Items.Add(New SecsItemList("L0"))
+                        Case 13 'Establish Communications Request
+                            'Dim msgS1F14 As S1F14 = New S1F14()
+                            'c_Host.Reply(msg, msgS1F14)
+                            Reply_S1F13(msg)
+                    End Select
+                Case 2
+                    Select Case msg.Function
+                        Case 17 'date time request
+                            Dim msgS2F18 As S2F18 = New S2F18(TimeFormat.A16)
+                            c_Host.Reply(msg, msgS2F18)
+                    End Select
+                Case 5
+                    Select Case msg.Function
+                        Case 1 'Alarm Report Send
+                            Dim msgS5F1 As S5F1 = DirectCast(msg, S5F1)
+                            c_Host.Reply(msgS5F1, New S5F2())
+                            OnS5F1(CType(msg, S5F1))
+                    End Select
+                Case 6
+                    Select Case msg.Function
+                        Case 11
+                            OnS6F11(CType(msg, S6F11))
+                            'Perform_S6F11(CType(msg, S6F11))
+                            Exit Sub           '160906 \783 Call productionn form
+                    End Select
+                Case 9
+                    'dont need acknowledge
 
+                Case 10
+                    Perform_S10(msg)
+
+                Case 64
+                    Select Case msg.Function
+                        Case 1 'supply tube id was read
+                            'Perform_S64F1(CType(msg, S64F1))
+                        Case 3 'tube changed
+                            'Perform_S64F3(CType(msg, S64F3))
+                        Case 11 'request new tube id for print
+                            'Perform_S64F11(CType(msg, S64F11))
+                    End Select
+            End Select
+
+        Catch ex As Exception
+            SaveCatchLog("ProcessSecsMessage() Primary message recieve  : S" & msg.Stream & "F" & msg.Function, ex.ToString)
+        End Try
+
+    End Sub
+
+    Private Sub c_Host_ReceivedSecondaryMessage(ByVal sender As Object, ByVal e As SecondarySecsMessageEventArgs)
+        Dim priMsg As SecsMessageBase = e.Primary
+        Dim sndMsg As SecsMessageBase = e.Secondary
+        Select Case priMsg.Stream
+            Case 1
+                Select Case priMsg.Function
+                    Case 13
+                        Dim reply As S1F14E = DirectCast(sndMsg, S1F14E)
+                        If reply.COMMACK = COMMACK.OK Then
+                            UpdateStateThreadSafe("COMMUNICATING (Host Init)")
+                            'GoOnline()     ' Eq Communication Revise  160627 \783
+                        End If
+                    Case 14
+                    Case 3
+                    Case 17
+                End Select 'End Select S1Fx
+            Case 2
+                Select Case priMsg.Function
+
+                    Case 13
+
+                    Case 15
+
+                    Case 33
+
+                    Case 35
+
+                    Case 37
+
+                    Case 43
+
+                End Select 'End of Select Function of Stream 2
+
+            Case 5
+                Select Case priMsg.Function
+                    Case 3
+
+                End Select
+
+            Case 6
+                Select Case priMsg.Function
+                    Case 23
+
+                End Select
+
+
+        End Select 'Select Stream end
+
+
+
+    End Sub
+
+    Private Sub c_Host_ErrorNotification(ByVal sender As Object, ByVal e As SecsErrorNotificationEventArgs)
+
+    End Sub
+
+    Private Sub c_Host_ConversionErrored(ByVal sender As Object, ByVal e As ConversionErrorEventArgs)
+
+    End Sub
+
+
+
+#End Region
     Private Sub c_Host_HsmsStateChanged(ByVal sender As Object, ByVal e As HsmsStateChangedEventArgs)
         UpdateStateThreadSafe(e.State.ToString)
         If e.State = HsmsState.SELECTED And My.Settings.S1F13_Setting Then  '160627 \783 Eq comm revise
@@ -1056,18 +1160,30 @@ Public Class FormProduction
         End If
 
     End Sub
-
-
+    Private m_S5F1 As S5F1Delegate = New S5F1Delegate(AddressOf OnS5F1)
+    Public Sub OnS5F1(ByVal request As S5F1) '2017.11.29 - 9263/JERVIN
+        If Me.InvokeRequired Then
+            Me.BeginInvoke(m_S5F1, request)
+            Exit Sub
+        End If
+        'ACKNOWLEDGE REPLY
+        Dim S5F2 As S5F2 = New S5F2()
+        c_Host.Reply(request, S5F2)
+        'ADD ALARM DATA
+        lblAlarmText.Text = request.AlarmText
+        'lblAlarmNo.Text = request.AlarmID.ToString()
+        TowerRed.BackColor = Color.Red
+        TowerYellow.BackColor = Color.White
+        TowerGreen.BackColor = Color.White
+        tmrTower.Start()
+    End Sub
     Private m_S6F11 As S6F11Delegate = New S6F11Delegate(AddressOf OnS6F11)
-
     Public Sub OnS6F11(ByVal request As S6F11) '160801 \783 Add parameter m_Equipment
-
         If Me.InvokeRequired Then
             'http://kristofverbiest.blogspot.com/2007/02/avoid-invoke-prefer-begininvoke.html
             Me.BeginInvoke(m_S6F11, request)
             Exit Sub
         End If
-
         'reply(acknowledge)
         Dim s6f12 As S6F12 = New S6F12()
         c_Host.Reply(request, s6f12)
@@ -1080,33 +1196,49 @@ Public Class FormProduction
             Select Case request.CEID ''Control Status
                 'm_equipment are SVID of CEID that define in report.
                 Case CStr(SecsID.LotStartCEID)
-                    Lotstart(CType(CellConTag.LSMode, Rohm.Apcs.Tdc.RunModeType))
+                    'Lotstart(CType(CellConTag.LSMode, Rohm.Apcs.Tdc.RunModeType))
 
                 Case CStr(SecsID.LotEndCEID)
-                    CellConTag.NGbin1 = m_Equipment.NGbin1
-                    CellConTag.NGbin2 = m_Equipment.NGbin2
-                    CellConTag.NGbin3 = m_Equipment.NGbin3
-                    CellConTag.NGbin4 = m_Equipment.NGbin4
-                    CellConTag.NGbin5 = m_Equipment.NGbin5
-                    CellConTag.NGbin6 = m_Equipment.NGbin6
-                    CellConTag.GoodCat1 = m_Equipment.GoodCat1
-                    CellConTag.GoodCat2 = m_Equipment.GoodCat2
-                    LotEnd()
+                    'CellConTag.NGbin1 = m_Equipment.NGbin1
+                    'CellConTag.NGbin2 = m_Equipment.NGbin2
+                    'CellConTag.NGbin3 = m_Equipment.NGbin3
+                    'CellConTag.NGbin4 = m_Equipment.NGbin4
+                    'CellConTag.NGbin5 = m_Equipment.NGbin5
+                    'CellConTag.NGbin6 = m_Equipment.NGbin6
+                    'CellConTag.GoodCat1 = m_Equipment.GoodCat1
+                    'CellConTag.GoodCat2 = m_Equipment.GoodCat2
+                    'LotEnd()
             End Select
         End If
 
-        Select Case request.CEID.ToString() ''Control Status
+        Select Case request.CEID.ToString() 'Control Status
             'MANAGE CEID's - JERVIN 2017.11.27
+            Case "100" 'Process State Change Event
+                ProcessStateChange100(m_Equipment.ProcessState)
             Case "800" 'Lot Start Event
-                Lotstart(CType(CellConTag.LSMode, RunModeType))
-                UpdateLabelsText()
-
+                LotStart800()
+            Case "801" 'Lot Pause Event
+                LotPauseResumeEndTestEnd801802803901()
+            Case "802" ' Lot Resume Event
+                LotPauseResumeEndTestEnd801802803901()
+            Case "803" 'Lot End Event
+                LotPauseResumeEndTestEnd801802803901()
+                SignalTower("LOTEND")
+            Case "821" 'Lot Open Event
+                LotOpen821()
             Case "822" 'Lot Close Event
             Case "901" 'Test End Event
-            Case "100" 'Process State Change Event
-                UpdateLabelsText()
+                LotPauseResumeEndTestEnd801802803901()
+            Case "1000" 'Alarm Details
+                AlarmOccur1000()
 
-                'm_equipment are SVID of CEID that define in report.
+            'THIS PART IS NOT WORKING CEID NOT AVAILABLE
+            Case "471" 'Auto 1 Stage Device Putting
+                LotPauseResumeEndTestEnd801802803901()
+            Case "472" 'Auto 2 Stage Device Putting 
+                LotPauseResumeEndTestEnd801802803901()
+            Case "473" 'Auto 3 Stage Device Putting
+                LotPauseResumeEndTestEnd801802803901()
         End Select
 
     End Sub
@@ -1159,7 +1291,6 @@ Public Class FormProduction
         '    Dim S12F19x As New S12F19(MAPER.IDNoFound, 0)
         '    RaiseEvent E_HostReply(S12F3R, S12F19x)
         '    Exit Sub
-
         'End If
 
         'WaferIndex = CInt(Microsoft.VisualBasic.Right(S12F3R.MID, 2))
@@ -1228,8 +1359,8 @@ Public Class FormProduction
             FormMain.GetInstance.ShowStatusBar("PC Nework point unplug" & Format(Now, " |HH:mm:ss.fff"))
             Exit Sub
         End If
-        If Not My.Computer.Network.Ping("10.1.1.50") Then            '160628 \783 Eq comm revise  Can Ping if Computer Connect only
-            MsgBox("Ping to 10.1.1.50 fail")
+        If Not My.Computer.Network.Ping("172.27.21.55") Then            '160628 \783 Eq comm revise  Can Ping if Computer Connect only
+            MsgBox("Ping to 172.27.21.55 fail")
         End If
 
         If CommuniationState = "NOT_CONNECTED" Then     '160628 \783 Eq comm revise
@@ -1317,15 +1448,13 @@ Public Class FormProduction
         Dim msg As New S5F3(True, 0)
         c_Host.Send(msg)
     End Sub
-
     Public Sub Send_S2F15(ByVal U32 As UInt32, ByVal Ev As String, ByVal Format As SecsFormat)
         Dim msg As S2F15 = New S2F15()
         msg.AddListEcid(U32, Ev, Format)
         c_Host.Send(msg)
-
     End Sub
-
-    Public Sub Send_S5F3(ByVal Enable As Boolean, Optional ByVal ALID As UInteger = Nothing)
+    'Public Sub Send_S5F3(ByVal Enable As Boolean, Optional ByVal ALID As UInteger = Nothing)
+    Public Sub Send_S5F3(ByVal Enable As Boolean, Optional ByVal ALID As UShort = Nothing)
         Dim msg As S5F3 = New S5F3(Enable, ALID)
         c_Host.Send(msg)
     End Sub
@@ -1340,8 +1469,6 @@ Public Class FormProduction
         c_Host.Send(msg)
     End Sub
 
-
-
     Private Sub Reply_S1F13(ByVal request As SecsMessageBase)
         'm_Equipment.DeviceId = request.DeviceId
         'reply
@@ -1349,56 +1476,41 @@ Public Class FormProduction
         c_Host.Reply(request, reply)
         UpdateStateThreadSafe("COMMUNICATING (Equip Init)")
     End Sub
-
-    Public Sub Perform_S6F11(ByVal request As S6F11)
-
-        'reply(acknowledge)
-        Dim s6f12 As S6F12 = New S6F12()
-        c_Host.Reply(request, s6f12)
-        request.ApplyStatusVariableValue(m_Equipment, m_DefinedReportDic)
-
-        Try
-
-            Select Case request.CEID
-                'MANAGE CEID's - JERVIN 2017.11.27
-                Case "800" 'Lot Start Event
-                    Lotstart(CType(CellConTag.LSMode, RunModeType))
-                    UpdateLabelsText()
-
-                Case "822" 'Lot Close Event
-                Case "901" 'Test End Event
-                Case "100" 'Process State Change Event
-
-                    '        ''    UpdateStateThreadSafe(m_Equipment.ControlState.ToString, StatusLabel.FrmSecs_slbControlState)
-                    '        '    ''Case 1002 'EQ Status           
-                    '        '    ''    OnEQStatusChanged()
-                    '        '    ''Case 1003 'Lot Start(End)
-                    '        '    ''    OnLotStartEnd()
-                    '        '    ''Case 1102 'Loader End             
-                    '        '    ''    OnLoaderEnd()
-                    '        '    ''    'USELESS EVENTS
-                    '        '    ''    'Case 1004 'ppid change
-                    '        '    ''    'Case 1100 'Door Locked
-                    '        '    ''    'Case 1101 'Tube Status
-                    '        Case Else
-
-
-
-            End Select
-
-        Catch ex As Exception
-            SaveCatchLog(ex.ToString, "Perform_S6F11()")
-
-        End Try
-
-        'If OprData.FRMProductAlive Then
-        '    FrmProduct.OnS6F11(request) '160801 \783 Add parameter m_Equipment
-        'End If
-    End Sub
-
-
+    'Public Sub Perform_S6F11(ByVal request As S6F11)
+    '    reply(acknowledge)
+    '    Dim s6f12 As S6F12 = New S6F12()
+    '    c_Host.Reply(request, s6f12)
+    '    request.ApplyStatusVariableValue(m_Equipment, m_DefinedReportDic)
+    '    Try
+    '        Select Case request.CEID
+    '            MANAGE CEID's - JERVIN 2017.11.27
+    '            Case "800" 'Lot Start Event
+    '                Lotstart(CType(CellConTag.LSMode, RunModeType))
+    '                LotStart800()
+    '            Case "822" 'Lot Close Event
+    '            Case "901" 'Test End Event
+    '            Case "100" 'Process State Change Event
+    '                UpdateStateThreadSafe(m_Equipment.ControlState.ToString, StatusLabel.FrmSecs_slbControlState)
+    '            Case 1002 'EQ Status           
+    '                OnEQStatusChanged()
+    '            Case 1003 'Lot Start(End)
+    '                OnLotStartEnd()
+    '            Case 1102 'Loader End             
+    '                OnLoaderEnd()
+    '                USELESS Events
+    '            Case 1004 'ppid change
+    '            Case 1100 'Door Locked
+    '            Case 1101 'Tube Status
+    '            Case Else
+    '        End Select
+    '    Catch ex As Exception
+    '        SaveCatchLog(ex.ToString, "Perform_S6F11()")
+    '    End Try
+    '    If OprData.FRMProductAlive Then
+    '        FrmProduct.OnS6F11(request) '160801 \783 Add parameter m_Equipment
+    '    End If
+    'End Sub
     Private m_Slb As UpdateTextDelegate1 = New UpdateTextDelegate1(AddressOf UpdateStateThreadSafe)
-
     Private Sub UpdateStateThreadSafe(ByVal informationText As String)
         If Me.InvokeRequired Then
             'http://kristofverbiest.blogspot.com/2007/02/avoid-invoke-prefer-begininvoke.html
@@ -1409,18 +1521,15 @@ Public Class FormProduction
             'If ControlName = StatusLabel.FrmSecs_slblCnnState Then
             '    CommuniationState = informationText
             '    If FrmProduct IsNot Nothing Then
-
             If informationText Like "COMMUNICATING*" Then   '160627 \783 Eq Comm Revise
-                Me.BackColor = Color.WhiteSmoke
+                Me.BackColor = Color.DarkGreen
                 FormMain.GetInstance.ShowStatusBar("SECS/GEM COMMUNICATION : " & informationText)
             Else
                 Me.BackColor = Color.Red
                 FormMain.GetInstance.ShowStatusBar("SECS/GEM COMMUNICATION : " & informationText)
 
             End If
-
             '    End If
-
             'End If
             'If ControlName = StatusLabel.FrmSecs_slbControlState Then
             '    ControlState = informationText
@@ -1478,10 +1587,8 @@ Public Class FormProduction
     End Sub
 
     Private Sub FormProduction_FormClosing(sender As Object, e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
-
         If e.CloseReason = CloseReason.MdiFormClosing Then
             c_Host.Disconnect()
-
             If Not c_TabCtrl.HasChildren Then
                 c_TabPage.Dispose()
                 c_TabCtrl.Visible = False
@@ -1496,28 +1603,28 @@ Public Class FormProduction
         c_Host.Connect()
     End Sub
 
-    Private Sub Button2_Click(sender As System.Object, e As System.EventArgs) Handles Button2.Click
+    Private Sub Button2_Click(sender As System.Object, e As System.EventArgs)
         CellConTag.TotalGoodPcs += 1
-        lbGoodTotal.Text = CStr(CellConTag.TotalGoodPcs)
-        FormMain.GetInstance.c_ServiceProxy.DiebondCounterUpdate(lbMcNo.Text, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs)
+        lblGoodBin1.Text = CStr(CellConTag.TotalGoodPcs)
+        FormMain.GetInstance.c_ServiceProxy.DiebondCounterUpdate(lblMachineNo.Text, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs)
     End Sub
 
 
-    Private Sub Button3_Click(sender As System.Object, e As System.EventArgs) Handles Button3.Click
+    Private Sub Button3_Click(sender As System.Object, e As System.EventArgs)
         CellConTag.TotalNGPcs += 1
-        lbNGTotal.Text = CStr(CellConTag.TotalNGPcs)
-        FormMain.GetInstance.c_ServiceProxy.DiebondCounterUpdate(lbMcNo.Text, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs)
+        lblFTNG.Text = CStr(CellConTag.TotalNGPcs)
+        FormMain.GetInstance.c_ServiceProxy.DiebondCounterUpdate(lblMachineNo.Text, CellConTag.TotalGoodPcs, CellConTag.TotalNGPcs)
     End Sub
-    Private Sub Button1_Click(sender As System.Object, e As System.EventArgs) Handles Button1.Click
-        FormMain.GetInstance.c_ServiceProxy.AlarmReport(lbMcNo.Text, True, "001", "TestAlarmSet")
+    Private Sub Button1_Click(sender As System.Object, e As System.EventArgs)
+        FormMain.GetInstance.c_ServiceProxy.AlarmReport(lblMachineNo.Text, True, "001", "TestAlarmSet")
     End Sub
-    Private Sub Button6_Click(sender As System.Object, e As System.EventArgs) Handles Button6.Click
-        FormMain.GetInstance.c_ServiceProxy.AlarmReport(lbMcNo.Text, False, "001", "TestAlarmSet")
+    Private Sub Button6_Click(sender As System.Object, e As System.EventArgs)
+        FormMain.GetInstance.c_ServiceProxy.AlarmReport(lblMachineNo.Text, False, "001", "TestAlarmSet")
     End Sub
-    Private Sub Button7_Click(sender As System.Object, e As System.EventArgs) Handles Button7.Click
-        Dim sta As New m_ProcessingStates
-        sta = DirectCast(ComboBox1.SelectedIndex, m_ProcessingStates)
-        FormMain.GetInstance.c_ServiceProxy.ProcessingState(lbMcNo.Text, sta, Now)
+    Private Sub Button7_Click(sender As System.Object, e As System.EventArgs)
+        'Dim sta As New m_ProcessingStates
+        'sta = DirectCast(ComboBox1.SelectedIndex, m_ProcessingStates)
+        'FormMain.GetInstance.c_ServiceProxy.ProcessingState(lblMachineNo.Text, sta, Now)
     End Sub
 
 #Region "Property"
@@ -1559,21 +1666,16 @@ Public Class FormProduction
             c_TabPage = value
         End Set
     End Property
+    Private Sub Button10_Click(sender As Object, e As EventArgs)
+        SendRemoteCommand("PP-SELECT", "PPID", "X001")
+    End Sub
 
-
-
-
-
-
-
-
+    Private Sub tmrTower_Tick(sender As Object, e As EventArgs) Handles tmrTower.Tick
+        If TowerRed.BackColor = Color.Red Then
+            TowerRed.BackColor = Color.White
+        Else
+            TowerRed.BackColor = Color.Red
+        End If
+    End Sub
 #End Region
-
-
-
-
-
-  
-    
-  
 End Class

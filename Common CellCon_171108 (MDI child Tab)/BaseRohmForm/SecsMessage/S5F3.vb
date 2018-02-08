@@ -2,13 +2,16 @@
 
 Public Class S5F3
     Inherits SecsMessageBase
-    Public Sub New(ByVal Enable As Boolean, ByVal ALID As UInteger)
+    'CHANGE UInteger TO UShort Due to xtraLibrary Variable set / jdikit 9263
+    'Public Sub New(ByVal Enable As Boolean, ByVal ALID As UInteger)
+    Public Sub New(ByVal Enable As Boolean, ByVal ALID As UShort)
         MyBase.New(5, 3, True)
 
 
-        Dim m_ALID As New SecsItemU4("ALID")
+        'Dim m_ALID As New SecsItemU4("ALID")
+        Dim m_ALID As New SecsItemU2("ALID")
         If Not ALID = Nothing Then
-            m_ALID = New SecsItemU4("ALID", ALID)
+            m_ALID = New SecsItemU2("ALID", ALID)
         End If
 
 

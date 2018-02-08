@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -14,7 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <MyType>WindowsForms</MyType>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
@@ -42,6 +43,7 @@
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -54,6 +56,7 @@
     <NoWarn>
     </NoWarn>
     <WarningsAsErrors>41999,42016,42017,42018,42019,42020,42021,42022,42032,42036</WarningsAsErrors>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -89,6 +92,9 @@
     </Reference>
     <Reference Include="Rohm.Apcs.Tdc">
       <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\Rohm.Apcs.Tdc.dll</HintPath>
+    </Reference>
+    <Reference Include="Rohm.Common.Forms">
+      <HintPath>..\..\..\..\..\Important Programs\Rohm Common Library\Rohm.Common.Library\Rohm.Common.Forms\bin\Debug\Rohm.Common.Forms.exe</HintPath>
     </Reference>
     <Reference Include="Rohm.Common.Model">
       <HintPath>..\..\..\..\Common CellCon_171108 (MDI child Tab)\LegacyBase\Common CellCon_171108 (MDI child Tab)\BaseRohmForm\dllSource\Rohm.Common.Model.dll</HintPath>
@@ -226,6 +232,7 @@
     <Compile Include="SecsMessage\S2F16.vb" />
     <Compile Include="SecsMessage\S2F17.vb" />
     <Compile Include="SecsMessage\S2F18.vb" />
+    <Compile Include="SecsMessage\S2F41TEST.vb" />
     <Compile Include="SecsMessage\S2F49.vb" />
     <Compile Include="SecsMessage\S2F50.vb" />
     <Compile Include="SecsMessage\S6F23.vb" />
