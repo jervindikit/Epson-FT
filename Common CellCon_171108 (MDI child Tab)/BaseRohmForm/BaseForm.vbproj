@@ -232,7 +232,6 @@
     <Compile Include="SecsMessage\S2F16.vb" />
     <Compile Include="SecsMessage\S2F17.vb" />
     <Compile Include="SecsMessage\S2F18.vb" />
-    <Compile Include="SecsMessage\S2F41TEST.vb" />
     <Compile Include="SecsMessage\S2F49.vb" />
     <Compile Include="SecsMessage\S2F50.vb" />
     <Compile Include="SecsMessage\S6F23.vb" />
